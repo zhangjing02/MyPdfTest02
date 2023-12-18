@@ -1,6 +1,7 @@
 package com.example.mypdftest;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -34,7 +35,10 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.security.auth.login.LoginException;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
@@ -139,6 +143,9 @@ public class MainActivity extends AppCompatActivity {
         tv_read_file.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                createRxJavaData();
+
+
 
 //                Intent intent = new Intent(Intent.ACTION_VIEW);
 //                Uri uri = Uri.parse(storageDir+"/shineTools");
@@ -156,11 +163,11 @@ public class MainActivity extends AppCompatActivity {
 //                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, dirUri);
 //                startActivityForResult(intent, 1);
 
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                intent.setType("*/*");
-                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(filePath));
-                startActivityForResult(intent, 1);
+//                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+//                intent.addCategory(Intent.CATEGORY_OPENABLE);
+//                intent.setType("*/*");
+//                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(filePath));
+//                startActivityForResult(intent, 1);
 
 
 //                Uri uri = Uri.parse("content://com.android.externalstorage.documents/shineTools:zhangjing.txt");
@@ -217,9 +224,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-
-
-
         ContentValues values = new ContentValues();
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, "my_pdf.pdf");
         values.put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf");
@@ -243,7 +247,31 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+
+    @SuppressLint("CheckResult")
+    private void createRxJavaData(){
+        RxJavaHelper.openRxjavaData().subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Observer<String>() {
+                    @Override
+                    public void onSubscribe(Disposable d) {
+                    }
+                    @Override
+                    public void onNext(String result) {
+//                        Log.e(TAG, "custom decodeQRCode: result = " + result);
+                        tv_read_file.setText("我们看得到的数据是："+result);
+                    }
+                    @Override
+                    public void onError(Throwable e) {
+//                        Log.e(TAG, "custom decodeQRCode: result err = " + e.getMessage());
+                    }
+                    @Override
+                    public void onComplete() {
+
+                    }
+                });
     }
 
 }
